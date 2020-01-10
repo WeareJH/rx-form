@@ -1,0 +1,40 @@
+import { Meta, Story, Preview } from '@storybook/addon-docs/blocks';
+import {Form, Text} from "../src";
+import {State} from "./State"; 
+
+<Meta title="Validation" />
+
+# Validate on Change
+
+If you pass `validateOnChange={true}` to a field, that field will then be validated on every change 
+following the very first submission.
+
+```tsx
+import {Form, Text} from "../src";
+
+// ensure the field has over 5 chars
+const validateLength = (val: string) => val && val.length > 5;
+
+<Text field="username" validate={validateLength} validateOnChange={true}/>
+```
+
+## Try it out
+
+Try typing first, notice the validation does not run. Then submit with 0 chars (to create an error) - now all subsequent keystrokes will cause validators to fire.
+
+<Preview>
+  <Story name="Validate on change)">
+    <Form>
+        <label>
+            Username:
+            <Text field="username" 
+                validate={(x) => x && x.length > 5 ? undefined : 'enter 5 chars'}
+                validateOnChange={true}
+            />
+        </label>
+        <button type="submit">Submit</button>
+        <State />
+    </Form>
+  </Story>
+</Preview>
+

@@ -1,0 +1,86 @@
+import React, { useCallback, useContext, useEffect, useState } from "react";
+import { noop } from "rxjs";
+import { distinctUntilChanged, pluck } from "rxjs/operators";
+
+import { RxValidateFn } from "./rx-form-reducer";
+import { useRxInternalField } from "./hooks/useRxInternal";
+
+type RxRadioGroupProps = {
+    field: string;
+    validate?: RxValidateFn;
+    id?: string;
+    validateOnChange?: boolean;
+    validateOnBlur?: boolean;
+    initialValue?: any;
+    [index: string]: any;
+};
+
+const RContext = React.createContext<{
+    field: string;
+    onChange(value: string): void;
+    groupValue?: string;
+}>({
+    field: "unknown",
+    onChange: (..._args) => noop
+});
+
+export const RxRadioGroup: React.FC<RxRadioGroupProps> = React.memo(props => {
+    const {
+        validateOnChange,
+        validateOnBlur,
+        validate,
+        field,
+        initialValue
+    } = props;
+
+    const { onChange, formInitialValue, getStateStream } = useRxInternalField(
+        field,
+        validate,
+        validateOnChange,
+        validateOnBlur,
+        initialValue
+    );
+    const [value, setValue] = useState(formInitialValue);
+
+    useEffect(() => {
+        const sub = getStateStream()
+            .pipe(pluck(field), distinctUntilChanged())
+            .subscribe(x => setValue(x));
+        return () => sub.unsubscribe();
+    }, [field, getStateStream]);
+
+    return (
+        <RContext.Provider value={{ field, onChange, groupValue: value }}>
+            {props.children}
+        </RContext.Provider>
+    );
+});
+
+type RxRadioProps = {
+    value: string | number;
+};
+
+export const RxRadio: React.FC<RxRadioProps> = props => {
+    const { field, onChange, groupValue } = useContext(RContext);
+    const onInputChange = useCallback(
+        e => {
+            if (!e.target.checked) {
+                return;
+            }
+            onChange(e.target.value);
+        },
+        [onChange]
+    );
+    return (
+        <input
+            onChange={onInputChange}
+            checked={props.value === groupValue}
+            name={field}
+            type="radio"
+            value={props.value}
+        />
+    );
+};
+
+export const RadioGroup = RxRadioGroup;
+export const Radio = RxRadio;

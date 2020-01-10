@@ -1,0 +1,40 @@
+import { Meta, Story, Preview } from '@storybook/addon-docs/blocks';
+import {Form, Text} from "../src";
+import {State} from "./State"; 
+
+<Meta title="Validation" />
+
+# Validate on Blur
+
+If you pass `validateOnBlur={true}` to a field, that field will then be validated every time
+the blur event happens on the field.
+
+```tsx
+import {Form, Text} from "../src";
+
+// ensure the field has over 5 chars
+const validateLength = (val: string) => val && val.length > 5;
+
+<Text field="username" validate={validateLength} validateOnBlur={true}/>
+```
+
+## Try it out
+
+Try clicking into this field, and then click away.
+
+<Preview>
+  <Story name="Validate on blur">
+    <Form>
+        <label>
+            Username:
+            <Text field="username" 
+                validate={(x) => x && x.length > 5 ? undefined : 'enter 5 chars'}
+                validateOnBlur={true}
+            />
+        </label>
+        <button type="submit">Submit</button>
+        <State />
+    </Form>
+  </Story>
+</Preview>
+
