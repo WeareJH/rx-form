@@ -1,6 +1,7 @@
 export type Obj = { [index: string]: any };
 export type RxFormApi = {
     setValue<T extends string>(field: T, value: any): void;
+    getValue<T extends string>(field: T): any;
     setValues(values: { [index: string]: any }): void;
 };
 export type RxValidate = {

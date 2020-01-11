@@ -10,6 +10,7 @@ import {
     ReplaySubject,
     Subject,
 } from 'rxjs';
+import dlv from 'dlv';
 import { debounceTime, filter, map, scan, share, subscribeOn, tap, withLatestFrom } from 'rxjs/operators';
 
 import { FormValues, RxFormEvt, RxFormSubmitFn, Obj } from './types';
@@ -28,12 +29,16 @@ type RxFormProps = {
 export const RxFormContext = React.createContext<{
     initialValues: FormValues;
     next: (evt: RxFormEvt) => void;
+    getValue: (field: string) => any;
     getValueStream: () => Observable<any>;
     getSetStream: (field?: string) => Observable<RxFormEvt>;
     getErrorStream: () => Observable<any>;
     getSubmitCountStream: () => Observable<number>;
 }>({
     initialValues: {},
+    getValue: () => {
+        return undefined;
+    },
     next: (_evt: RxFormEvt) => {
         /** noop */
     },
@@ -69,6 +74,13 @@ export const RxForm: React.FC<RxFormProps & FormHTMLAttributes<unknown>> = React
     useEffect(() => {
         initialValues$.current.next(initialValues || {});
     }, [initialValues]);
+
+    const getValue = useCallback(
+        (field: string) => {
+            return dlv(values$.current.value, field);
+        },
+        [values$],
+    );
 
     const next = useCallback(
         x => {
@@ -333,6 +345,7 @@ export const RxForm: React.FC<RxFormProps & FormHTMLAttributes<unknown>> = React
             <RxFormContext.Provider
                 value={{
                     next,
+                    getValue,
                     initialValues: initialValues || EMPTY_OBJ,
                     getValueStream: getValuesStream,
                     getErrorStream,

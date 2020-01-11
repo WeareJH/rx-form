@@ -26,5 +26,8 @@ export function useFormApi(): RxFormApi {
         },
         [setValue],
     );
-    return { setValue, setValues };
+    const getValue = useCallback((field: string) => {
+        return ctx.getValue(field);
+    }, []);
+    return { setValue, setValues, getValue };
 }
