@@ -1,7 +1,7 @@
 import React from 'react';
 import { Form, Text } from '../src';
-import { State } from './State';
 import { ErrorFor } from './ErrorFor';
+import { Demo } from './Demo';
 
 export default {
     title: 'Validation',
@@ -16,14 +16,15 @@ const validate = (value: string | undefined) => {
 export const validateOnSubmit = () => {
     return (
         <Form>
-            <h2>Validates on Submit only</h2>
-            <label>
-                Username:
-                <Text field="username" validate={validate} autoComplete={'off'} />
-                <ErrorFor field={'username'} />
-            </label>
-            <button type="submit">Submit</button>
-            <State />
+            <Demo>
+                <h2>Validates on Submit only</h2>
+                <label>
+                    Username:
+                    <Text field="username" validate={validate} autoComplete={'off'} />
+                    <ErrorFor field={'username'} />
+                </label>
+                <button type="submit">Submit</button>
+            </Demo>
         </Form>
     );
 };
@@ -31,14 +32,15 @@ export const validateOnSubmit = () => {
 export const validateOnChange = () => {
     return (
         <Form>
-            <h2>Validates on Submit once, then on every change</h2>
-            <label>
-                Username:
-                <Text field="username" validate={validate} validateOnChange={true} autoComplete={'off'} />
-                <ErrorFor field={'username'} />
-            </label>
-            <button type="submit">Submit</button>
-            <State />
+            <Demo>
+                <h2>Validates on Submit once, then on every change</h2>
+                <label>
+                    Username:
+                    <Text field="username" validate={validate} validateOnChange={true} autoComplete={'off'} />
+                    <ErrorFor field={'username'} />
+                </label>
+                <button type="submit">Submit</button>
+            </Demo>
         </Form>
     );
 };
@@ -46,20 +48,21 @@ export const validateOnChange = () => {
 export const validateOnBlurAndChange = () => {
     return (
         <Form>
-            <h2>Validates on Blur + Change</h2>
-            <label>
-                Username:
-                <Text
-                    field={'username'}
-                    validate={validate}
-                    validateOnBlur={true}
-                    validateOnChange={true}
-                    autoComplete={'off'}
-                />
-                <ErrorFor field={'username'} />
-            </label>
-            <button type="submit">Submit</button>
-            <State />
+            <Demo>
+                <h2>Validates on Blur + Change</h2>
+                <label>
+                    Username:
+                    <Text
+                        field={'username'}
+                        validate={validate}
+                        validateOnBlur={true}
+                        validateOnChange={true}
+                        autoComplete={'off'}
+                    />
+                    <ErrorFor field={'username'} />
+                </label>
+                <button type="submit">Submit</button>
+            </Demo>
         </Form>
     );
 };

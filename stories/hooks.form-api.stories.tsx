@@ -35,6 +35,9 @@ function Inner() {
                 <button type="button" onClick={() => api.setValue('firstname', 'Shane')}>
                     Set "Shane"
                 </button>
+                <button type="button" onClick={() => api.setValue('firstname', 'Sally')}>
+                    Set "Sally"
+                </button>
             </p>
             <p>
                 <button type="submit">Submit</button>

@@ -8,11 +8,7 @@ export function useFieldValue(field: string) {
     const [state, setState] = useState(undefined);
     useEffect(() => {
         const sub = getValueStream()
-            .pipe(
-                pluck(field),
-                tap(x => console.log('outgoing', x)),
-                tap(setState),
-            )
+            .pipe(pluck(field), tap(setState))
             .subscribe();
         return () => sub.unsubscribe();
     }, [getValueStream]);
