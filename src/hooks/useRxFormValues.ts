@@ -1,5 +1,5 @@
 import { useCallback, useContext, useEffect, useState } from "react";
-import { tap } from "rxjs/operators";
+import {pluck, tap} from "rxjs/operators";
 
 import { RxFormContext } from "../RxForm";
 
@@ -30,6 +30,24 @@ export function useRxFormErrors(): {[index: string]: any} {
     return state;
 }
 export const useFormErrors = useRxFormErrors;
+
+export function useRxFieldError(field: string): string | undefined {
+    const { getErrorStream } = useContext(RxFormContext);
+
+    const [state, setState] = useState(undefined);
+    useEffect(() => {
+        const sub = getErrorStream()
+            .pipe(
+                pluck(field),
+                tap(x => console.log('incoming', x)),
+                tap(setState)
+            )
+            .subscribe();
+        return () => sub.unsubscribe();
+    }, [getErrorStream]);
+    return state;
+}
+export const useFieldError = useRxFieldError;
 
 export function useRxSubmitCount() {
     const ctx = useContext(RxFormContext);

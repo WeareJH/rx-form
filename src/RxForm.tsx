@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useRef } from "react";
 import {
     asapScheduler,
     asyncScheduler,
-    BehaviorSubject,
+    BehaviorSubject, concat,
     EMPTY,
     merge,
     Observable,
@@ -12,7 +12,7 @@ import {
 import {
     debounceTime,
     filter,
-    map,
+    map, pluck,
     scan,
     share,
     subscribeOn,
@@ -73,7 +73,7 @@ export const RxForm: React.FC<RxFormProps> = React.memo(props => {
 
     const initialValues$ = useRef(new BehaviorSubject(initialValues || {}));
     const fields$ = useRef(new BehaviorSubject(new Set<string>([])));
-    const replayEvents$ = useRef(new ReplaySubject<RxFormEvt>(50));
+    const replayEvents$ = useRef(new ReplaySubject<RxFormEvt>(100));
     const mounted = useRef(false);
     const eventsAfterMount$ = useRef(new Subject<RxFormEvt>());
     // combined events
@@ -174,7 +174,7 @@ export const RxForm: React.FC<RxFormProps> = React.memo(props => {
 
     // handle mounted/unmounted events
     useEffect(() => {
-        const event$ = merge(replayEvents$.current, eventsAfterMount$.current);
+        const event$ = concat(replayEvents$.current, eventsAfterMount$.current);
 
         const setSub = event$.pipe(
             filter(x => x.type === "set-field-value"),

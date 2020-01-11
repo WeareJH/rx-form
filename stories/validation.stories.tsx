@@ -7,12 +7,13 @@ export default {
     title: 'Validation'
 };
 
+const validate = (value: string | undefined) => {
+    if (!value) return "Cannot be empty";
+    if (value.length < 5) return "Must be 5 or more chars";
+    return undefined;
+};
+
 export const validateOnSubmit  = () => {
-    const validate = (value: string | undefined) => {
-        if (!value) return "Cannot be empty";
-        if (value.length < 5) return "Must be 5 or more chars";
-        return undefined;
-    };
     return (
         <Form>
             <h2>Validates on Submit only</h2>
@@ -28,11 +29,6 @@ export const validateOnSubmit  = () => {
 };
 
 export const validateOnChange  = () => {
-    const validate = (value: string | undefined) => {
-        if (!value) return "Cannot be empty";
-        if (value.length < 5) return "Must be 5 or more chars";
-        return undefined;
-    };
     return (
         <Form>
             <h2>Validates on Submit once, then on every change</h2>
@@ -47,20 +43,21 @@ export const validateOnChange  = () => {
     )
 };
 
+const arr = [...new Array(100)].map((x, i) => i);
+
 export const validateOnBlurAndChange  = () => {
-    const validate = (value: string | undefined) => {
-        if (!value) return "Cannot be empty";
-        if (value.length < 5) return "Must be 5 or more chars";
-        return undefined;
-    };
     return (
         <Form>
             <h2>Validates on Blur + Change</h2>
-            <label>
-                Username:
-                <Text field="username" validate={validate} validateOnBlur={true} validateOnChange={true} autoComplete={"off"}/>
-                <ErrorFor field={"username"}/>
-            </label>
+            {arr.map(num => {
+                return (
+                        <label key={String(num)}>
+                            Field ({num}):
+                            <Text field={`field-${num}`} validate={validate} validateOnBlur={true} validateOnChange={true} autoComplete={"off"}/>
+                            <ErrorFor field={`field-${num}`}/>
+                        </label>
+                    )
+            })}
             <button type="submit">Submit</button>
             <State />
         </Form>
