@@ -17,7 +17,7 @@ export function useRxFormValues() {
 }
 export const useFormValues = useRxFormValues;
 
-export function useRxFormErrors() {
+export function useRxFormErrors(): {[index: string]: any} {
     const { getErrorStream } = useContext(RxFormContext);
 
     const [state, setState] = useState({});
