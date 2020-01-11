@@ -1,8 +1,8 @@
-import React from "react";
-import { noop } from "rxjs";
+import React from 'react';
+import { noop } from 'rxjs';
 
-import { RxValidateFn } from "./rx-form-reducer";
-import { useRxInternalField } from "./hooks/useRxInternal";
+import { RxValidateFn } from './rx-form-reducer';
+import { useRxInternalField } from './hooks/useRxInternal';
 
 type RxTextProps = {
     field: string;
@@ -15,20 +15,13 @@ type RxTextProps = {
 };
 
 export const RxTextArea: React.FC<RxTextProps> = React.memo(props => {
-    const {
-        validateOnChange,
-        validateOnBlur,
-        validate,
-        field,
-        initialValue,
-        ...rest
-    } = props;
+    const { validateOnChange, validateOnBlur, validate, field, initialValue, ...rest } = props;
     const { onInputChange, formInitialValue, ref } = useRxInternalField(
         field,
         validate,
         validateOnChange,
         validateOnBlur,
-        initialValue
+        initialValue,
     );
     return (
         <textarea

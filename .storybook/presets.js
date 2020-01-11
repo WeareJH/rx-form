@@ -1,4 +1,1 @@
-module.exports = [
-    '@storybook/preset-typescript',
-    '@storybook/addon-docs/preset'
-];
+module.exports = ['@storybook/preset-typescript', '@storybook/addon-docs/preset'];

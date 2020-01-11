@@ -1,9 +1,9 @@
 import React from 'react';
-import {Form, RadioGroup, Radio, Checkbox, Select} from "../src";
-import {State} from "./State";
+import { Form, RadioGroup, Radio, Checkbox, Select } from '../src';
+import { State } from './State';
 
 export default {
-  title: 'Inputs'
+    title: 'Inputs',
 };
 
 export const select = () => {
@@ -12,9 +12,7 @@ export const select = () => {
             <label>
                 Relationship status:
                 <Select field="status">
-                    <option value="">
-                        Select One...
-                    </option>
+                    <option value="">Select One...</option>
                     <option value="single">Single</option>
                     <option value="relationship">Relationship</option>
                     <option value="complicated">Complicated</option>
@@ -23,5 +21,5 @@ export const select = () => {
             <button type="submit">Submit</button>
             <State />
         </Form>
-    )
+    );
 };

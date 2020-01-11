@@ -1,9 +1,9 @@
 import React from 'react';
-import {Form, TextArea} from "../src";
-import {State} from "./State";
+import { Form, TextArea } from '../src';
+import { State } from './State';
 
 export default {
-  title: 'Inputs'
+    title: 'Inputs',
 };
 
 export const textarea = () => {
@@ -11,10 +11,10 @@ export const textarea = () => {
         <Form>
             <label>
                 Bio:
-                <TextArea field="bio"/>
+                <TextArea field="bio" />
             </label>
             <button type="submit">Submit</button>
             <State />
         </Form>
-    )
+    );
 };

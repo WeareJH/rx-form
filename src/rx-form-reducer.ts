@@ -1,19 +1,13 @@
 export type RxFormApi<Vals extends { [index: string]: any } = {}> = {
     setValue<T extends string>(field: T, value: any): void;
-    setValues<T extends string>(
-        field: T,
-        value: { [index: string]: any }
-    ): void;
+    setValues<T extends string>(field: T, value: { [index: string]: any }): void;
 };
 export type RxValidate = {
     fn: RxValidateFn;
     validateOnChange?: boolean;
     validateOnBlur?: boolean;
 };
-export type RxValidateFn = (
-    value: any,
-    values?: { [index: string]: any }
-) => string | undefined;
+export type RxValidateFn = (value: any, values?: { [index: string]: any }) => string | undefined;
 export type RxField = { value?: any; error?: string };
 export type RxFormSubmitFn = any;
 export type Fields = { [index: string]: RxField };
@@ -32,42 +26,42 @@ export interface RxFieldState {
 
 export type RxFormEvt =
     | {
-          type: "field-change";
+          type: 'field-change';
           value: any;
           field: string;
       }
     | {
-          type: "field-blur";
+          type: 'field-blur';
           field: string;
       }
     | {
-          type: "set-field-value";
+          type: 'set-field-value';
           value: any;
           field: string;
       }
     | {
-          type: "field-remove";
+          type: 'field-remove';
           field: string;
       }
     | {
-          type: "field-mount";
+          type: 'field-mount';
           field: string;
           validate?: RxValidate;
           initialValue?: any;
       }
     | {
-          type: "field-error";
+          type: 'field-error';
           field: string;
           value: any;
           error: string;
       }
     | {
-          type: "field-error-clear";
+          type: 'field-error-clear';
           field: string;
           value: any;
       }
     | {
-          type: "field-error-multi";
+          type: 'field-error-multi';
           items: {
               field: string;
               value: any;
@@ -75,11 +69,11 @@ export type RxFormEvt =
           }[];
       }
     | {
-          type: "submit";
+          type: 'submit';
       }
     | {
-          type: "submit-validated";
+          type: 'submit-validated';
       }
     | {
-          type: "submit-failed";
+          type: 'submit-failed';
       };

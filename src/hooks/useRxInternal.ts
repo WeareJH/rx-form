@@ -1,22 +1,20 @@
-import { useCallback, useContext, useEffect, useRef } from "react";
-import { tap } from "rxjs/operators";
+import { useCallback, useContext, useEffect, useRef } from 'react';
+import { tap } from 'rxjs/operators';
 
-import { RxFormContext } from "../RxForm";
-import { createDebug } from "../utils/debug";
-import { RxValidateFn } from "../rx-form-reducer";
+import { RxFormContext } from '../RxForm';
+import { createDebug } from '../utils/debug';
+import { RxValidateFn } from '../rx-form-reducer';
 
-const debug = createDebug("useRxInternalField");
+const debug = createDebug('useRxInternalField');
 
 export function useRxInternalField(
     field: string,
     validate?: RxValidateFn,
     validateOnChange?: boolean,
     validateOnBlur?: boolean,
-    initialValue?: any
+    initialValue?: any,
 ) {
-    const { next, initialValues, getSetStream, getStateStream } = useContext(
-        RxFormContext
-    );
+    const { next, initialValues, getSetStream, getStateStream } = useContext(RxFormContext);
     const formInitialValue = initialValue ?? initialValues[field];
 
     /**
@@ -24,10 +22,10 @@ export function useRxInternalField(
      */
     const onChange = useCallback(
         value => {
-            debug("onChange", field, value);
-            next({ type: "field-change", value, field: field });
+            debug('onChange', field, value);
+            next({ type: 'field-change', value, field: field });
         },
-        [next, field]
+        [next, field],
     );
 
     /**
@@ -35,8 +33,8 @@ export function useRxInternalField(
      */
     const onBlur = useCallback(() => {
         if (validateOnBlur) {
-            debug("onBlur", field);
-            next({ type: "field-blur", field: field });
+            debug('onBlur', field);
+            next({ type: 'field-blur', field: field });
         }
     }, [validateOnBlur, field, next]);
 
@@ -44,19 +42,19 @@ export function useRxInternalField(
      * Handle initial mount
      */
     useEffect(() => {
-        debug("++ mount");
+        debug('++ mount');
         const rxvalidate = validate
             ? {
                   fn: validate,
                   validateOnChange,
-                  validateOnBlur
+                  validateOnBlur,
               }
             : undefined;
         next({
-            type: "field-mount",
+            type: 'field-mount',
             field: field,
             initialValue,
-            validate: rxvalidate
+            validate: rxvalidate,
         });
     }, [initialValue, next, field, validate, validateOnChange, validateOnBlur]);
 
@@ -64,31 +62,31 @@ export function useRxInternalField(
      * Handle field un-mount
      */
     useEffect(() => {
-        return () => next({ type: "field-remove", field: field });
+        return () => next({ type: 'field-remove', field: field });
     }, [next, field]);
 
     const ref = useRef<HTMLInputElement>();
     const onInputChange = useCallback(
         e => {
             const value = e.target.value;
-            debug("onInputChange", field, value);
-            if (typeof value === "string") {
+            debug('onInputChange', field, value);
+            if (typeof value === 'string') {
                 onChange(value.trim());
             }
         },
-        [field, onChange]
+        [field, onChange],
     );
     useEffect(() => {
         const sets = getSetStream(field)
             .pipe(
                 tap(evt => {
-                    if (evt.type === "set-field-value") {
+                    if (evt.type === 'set-field-value') {
                         if (ref && ref.current) {
                             ref.current.value = evt.value;
                             onChange(evt.value);
                         }
                     }
-                })
+                }),
             )
             .subscribe();
         return () => sets.unsubscribe();
@@ -101,6 +99,6 @@ export function useRxInternalField(
         getSetStream,
         onInputChange,
         ref,
-        getStateStream
+        getStateStream,
     };
 }

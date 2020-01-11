@@ -1,11 +1,16 @@
-import React from "react";
-import {useFieldError} from "../src/hooks";
+import React from 'react';
+import { useFieldError } from '../src/hooks';
 
-export const ErrorFor: React.FC<{field: string}> = (props) => {
+export const ErrorFor: React.FC<{ field: string }> = props => {
     const error = useFieldError(props.field);
     const hasError = Boolean(error);
     if (hasError) {
-        return <p style={{color: "red"}}>field: '{props.field}', error: {error}</p>;
+        return (
+            <p style={{ color: 'red' }}>
+                field: '{props.field}', error: {error}
+            </p>
+        );
     }
+
     return null;
 };

@@ -1,9 +1,9 @@
-import React, { useCallback, useEffect, useState } from "react";
-import { noop } from "rxjs";
-import { distinctUntilChanged, pluck, tap } from "rxjs/operators";
+import React, { useCallback, useEffect, useState } from 'react';
+import { noop } from 'rxjs';
+import { distinctUntilChanged, pluck, tap } from 'rxjs/operators';
 
-import { RxValidateFn } from "./rx-form-reducer";
-import { useRxInternalField } from "./hooks/useRxInternal";
+import { RxValidateFn } from './rx-form-reducer';
+import { useRxInternalField } from './hooks/useRxInternal';
 
 type RxCheckboxProps = {
     field: string;
@@ -16,25 +16,13 @@ type RxCheckboxProps = {
 };
 
 export const RxCheckbox: React.FC<RxCheckboxProps> = React.memo(props => {
-    const {
+    const { validateOnChange, validateOnBlur, validate, field, initialValue, ...rest } = props;
+    const { onChange, formInitialValue, ref, getStateStream } = useRxInternalField(
+        field,
+        validate,
         validateOnChange,
         validateOnBlur,
-        validate,
-        field,
         initialValue,
-        ...rest
-    } = props;
-    const {
-        onChange,
-        formInitialValue,
-        ref,
-        getStateStream
-    } = useRxInternalField(
-        field,
-        validate,
-        validateOnChange,
-        validateOnBlur,
-        initialValue
     );
     const [value, setValue] = useState(formInitialValue);
 
@@ -42,7 +30,7 @@ export const RxCheckbox: React.FC<RxCheckboxProps> = React.memo(props => {
         e => {
             onChange(e.target.checked);
         },
-        [onChange]
+        [onChange],
     );
 
     useEffect(() => {

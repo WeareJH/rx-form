@@ -1,9 +1,9 @@
-import React, { useCallback, useContext, useEffect, useState } from "react";
-import { noop } from "rxjs";
-import { distinctUntilChanged, pluck } from "rxjs/operators";
+import React, { useCallback, useContext, useEffect, useState } from 'react';
+import { noop } from 'rxjs';
+import { distinctUntilChanged, pluck } from 'rxjs/operators';
 
-import { RxValidateFn } from "./rx-form-reducer";
-import { useRxInternalField } from "./hooks/useRxInternal";
+import { RxValidateFn } from './rx-form-reducer';
+import { useRxInternalField } from './hooks/useRxInternal';
 
 type RxRadioGroupProps = {
     field: string;
@@ -20,25 +20,19 @@ const RContext = React.createContext<{
     onChange(value: string): void;
     groupValue?: string;
 }>({
-    field: "unknown",
-    onChange: (..._args) => noop
+    field: 'unknown',
+    onChange: (..._args) => noop,
 });
 
 export const RxRadioGroup: React.FC<RxRadioGroupProps> = React.memo(props => {
-    const {
-        validateOnChange,
-        validateOnBlur,
-        validate,
-        field,
-        initialValue
-    } = props;
+    const { validateOnChange, validateOnBlur, validate, field, initialValue } = props;
 
     const { onChange, formInitialValue, getStateStream } = useRxInternalField(
         field,
         validate,
         validateOnChange,
         validateOnBlur,
-        initialValue
+        initialValue,
     );
     const [value, setValue] = useState(formInitialValue);
 
@@ -49,11 +43,7 @@ export const RxRadioGroup: React.FC<RxRadioGroupProps> = React.memo(props => {
         return () => sub.unsubscribe();
     }, [field, getStateStream]);
 
-    return (
-        <RContext.Provider value={{ field, onChange, groupValue: value }}>
-            {props.children}
-        </RContext.Provider>
-    );
+    return <RContext.Provider value={{ field, onChange, groupValue: value }}>{props.children}</RContext.Provider>;
 });
 
 type RxRadioProps = {
@@ -69,7 +59,7 @@ export const RxRadio: React.FC<RxRadioProps> = props => {
             }
             onChange(e.target.value);
         },
-        [onChange]
+        [onChange],
     );
     return (
         <input

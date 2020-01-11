@@ -1,7 +1,7 @@
-import React from "react";
+import React from 'react';
 
-import { RxValidateFn } from "./rx-form-reducer";
-import { useRxInternalField } from "./hooks/useRxInternal";
+import { RxValidateFn } from './rx-form-reducer';
+import { useRxInternalField } from './hooks/useRxInternal';
 
 type RxTextProps = {
     field: string;
@@ -14,20 +14,13 @@ type RxTextProps = {
 };
 
 export const RxText: React.FC<RxTextProps> = React.memo(props => {
-    const {
-        validateOnChange,
-        validateOnBlur,
-        validate,
-        field,
-        initialValue,
-        ...rest
-    } = props;
+    const { validateOnChange, validateOnBlur, validate, field, initialValue, ...rest } = props;
     const { onInputChange, onBlur, formInitialValue, ref } = useRxInternalField(
         field,
         validate,
         validateOnChange,
         validateOnBlur,
-        initialValue
+        initialValue,
     );
     return (
         <input

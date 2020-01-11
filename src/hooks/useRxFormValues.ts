@@ -1,7 +1,7 @@
-import { useCallback, useContext, useEffect, useState } from "react";
-import {pluck, tap} from "rxjs/operators";
+import { useCallback, useContext, useEffect, useState } from 'react';
+import { pluck, tap } from 'rxjs/operators';
 
-import { RxFormContext } from "../RxForm";
+import { RxFormContext } from '../RxForm';
 
 export function useRxFormValues() {
     const { initialValues, getStateStream } = useContext(RxFormContext);
@@ -17,7 +17,7 @@ export function useRxFormValues() {
 }
 export const useFormValues = useRxFormValues;
 
-export function useRxFormErrors(): {[index: string]: any} {
+export function useRxFormErrors(): { [index: string]: any } {
     const { getErrorStream } = useContext(RxFormContext);
 
     const [state, setState] = useState({});
@@ -37,11 +37,7 @@ export function useRxFieldError(field: string): string | undefined {
     const [state, setState] = useState(undefined);
     useEffect(() => {
         const sub = getErrorStream()
-            .pipe(
-                pluck(field),
-                tap(x => console.log('incoming', x)),
-                tap(setState)
-            )
+            .pipe(pluck(field), tap(setState))
             .subscribe();
         return () => sub.unsubscribe();
     }, [getErrorStream]);
@@ -65,12 +61,12 @@ export function useRxFormApi() {
         (field: string, value: any) => {
             ctx.next &&
                 ctx.next({
-                    type: "set-field-value",
+                    type: 'set-field-value',
                     field,
-                    value
+                    value,
                 });
         },
-        [ctx]
+        [ctx],
     );
     const setValues = useCallback(
         (obj: { [index: string]: any }) => {
@@ -78,7 +74,7 @@ export function useRxFormApi() {
                 setValue(key, obj[key]);
             });
         },
-        [setValue]
+        [setValue],
     );
     return { setValue, setValues };
 }
