@@ -1,32 +1,31 @@
 import React from 'react';
-import { useRxFormErrors, useRxFormValues, useRxSubmitCount } from '../src/hooks/useRxFormValues';
+import { useFormValues } from '../src/hooks/useFormValues';
+import { useFormErrors } from '../src/hooks/useFormErrors';
+import { useSubmitCount } from '../src/hooks/useSubmitCount';
 
-export const State: React.FC = props => {
-    const state = useRxFormValues();
-    const errors = useRxFormErrors();
-    const submit = useRxSubmitCount();
+export const State: React.FC = () => {
+    const state = useFormValues();
+    const errors = useFormErrors();
+    const submit = useSubmitCount();
     return (
         <div>
-            <hr />
-            <div style={{ display: 'grid', gridTemplateColumns: '0.4fr 0.4fr 0.2fr' }}>
-                <div>
-                    <p>State:</p>
-                    <pre>
-                        <code>{JSON.stringify(state, null, 2)}</code>
-                    </pre>
-                </div>
-                <div>
-                    <p>Errors:</p>
-                    <pre>
-                        <code>{JSON.stringify(errors, null, 2)}</code>
-                    </pre>
-                </div>
-                <div>
-                    <p>Submit Count:</p>
-                    <pre>
-                        <code>{JSON.stringify(submit, null, 2)}</code>
-                    </pre>
-                </div>
+            <div>
+                <p>State:</p>
+                <pre>
+                    <code>{JSON.stringify(state, null, 2)}</code>
+                </pre>
+            </div>
+            <div>
+                <p>Errors:</p>
+                <pre>
+                    <code>{JSON.stringify(errors, null, 2)}</code>
+                </pre>
+            </div>
+            <div>
+                <p>Submit Count:</p>
+                <pre>
+                    <code>{JSON.stringify(submit, null, 2)}</code>
+                </pre>
             </div>
         </div>
     );

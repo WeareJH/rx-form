@@ -1,6 +1,7 @@
-export type RxFormApi<Vals extends { [index: string]: any } = {}> = {
+export type Obj = { [index: string]: any };
+export type RxFormApi = {
     setValue<T extends string>(field: T, value: any): void;
-    setValues<T extends string>(field: T, value: { [index: string]: any }): void;
+    setValues(values: { [index: string]: any }): void;
 };
 export type RxValidate = {
     fn: RxValidateFn;

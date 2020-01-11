@@ -1,8 +1,8 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { InputHTMLAttributes, useCallback, useEffect, useState } from 'react';
 import { noop } from 'rxjs';
 import { distinctUntilChanged, pluck, tap } from 'rxjs/operators';
 
-import { RxValidateFn } from './rx-form-reducer';
+import { RxValidateFn } from './types';
 import { useRxInternalField } from './hooks/useRxInternal';
 
 type RxCheckboxProps = {
@@ -15,9 +15,9 @@ type RxCheckboxProps = {
     [index: string]: any;
 };
 
-export const RxCheckbox: React.FC<RxCheckboxProps> = React.memo(props => {
+export const RxCheckbox: React.FC<RxCheckboxProps & InputHTMLAttributes<unknown>> = React.memo(props => {
     const { validateOnChange, validateOnBlur, validate, field, initialValue, ...rest } = props;
-    const { onChange, formInitialValue, ref, getStateStream } = useRxInternalField(
+    const { onChange, formInitialValue, ref, getValueStream } = useRxInternalField(
         field,
         validate,
         validateOnChange,
@@ -34,11 +34,11 @@ export const RxCheckbox: React.FC<RxCheckboxProps> = React.memo(props => {
     );
 
     useEffect(() => {
-        const sub = getStateStream()
+        const sub = getValueStream()
             .pipe(pluck(field), distinctUntilChanged(), tap(setValue))
             .subscribe();
         return () => sub.unsubscribe();
-    }, [field, getStateStream]);
+    }, [field, getValueStream]);
 
     return (
         <input

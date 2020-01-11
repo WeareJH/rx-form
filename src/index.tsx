@@ -4,4 +4,5 @@ export * from './RxRadioGroup';
 export * from './RxText';
 export * from './RxSelect';
 export * from './RxTextArea';
-export * from './hooks';
+export { dropKey } from './utils/general';
+export { hasValue } from './utils/general';

@@ -1,7 +1,6 @@
 import React from 'react';
 import { State } from './State';
 import { Form, Text } from '../src';
-import { useFormErrors, useFormValues } from '../src/hooks';
 import { ErrorFor } from './ErrorFor';
 import { ValueFor } from './ValueFor';
 

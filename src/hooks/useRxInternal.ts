@@ -3,7 +3,7 @@ import { tap } from 'rxjs/operators';
 
 import { RxFormContext } from '../RxForm';
 import { createDebug } from '../utils/debug';
-import { RxValidateFn } from '../rx-form-reducer';
+import { RxValidateFn } from '../types';
 
 const debug = createDebug('useRxInternalField');
 
@@ -14,7 +14,7 @@ export function useRxInternalField(
     validateOnBlur?: boolean,
     initialValue?: any,
 ) {
-    const { next, initialValues, getSetStream, getStateStream } = useContext(RxFormContext);
+    const { next, initialValues, getSetStream, getValueStream } = useContext(RxFormContext);
     const formInitialValue = initialValue ?? initialValues[field];
 
     /**
@@ -99,6 +99,6 @@ export function useRxInternalField(
         getSetStream,
         onInputChange,
         ref,
-        getStateStream,
+        getValueStream: getValueStream,
     };
 }

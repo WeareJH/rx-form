@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { FormHTMLAttributes, useCallback, useEffect, useRef } from 'react';
 import {
     asapScheduler,
     asyncScheduler,
@@ -10,24 +10,25 @@ import {
     ReplaySubject,
     Subject,
 } from 'rxjs';
-import { debounceTime, filter, map, pluck, scan, share, subscribeOn, tap, withLatestFrom } from 'rxjs/operators';
+import { debounceTime, filter, map, scan, share, subscribeOn, tap, withLatestFrom } from 'rxjs/operators';
 
-import { FormValues, RxFormEvt, RxFormState, RxFormSubmitFn } from './rx-form-reducer';
-import { createDebug } from './utils/debug';
+import { FormValues, RxFormEvt, RxFormSubmitFn, Obj } from './types';
+import { dropKey, hasValue } from './utils/general';
+// import { createDebug } from './utils/debug';
 
-const debug = createDebug('RxForm');
+// const debug = createDebug('RxForm');
 
 type RxFormProps = {
     initialValues?: FormValues;
     onSubmit?: RxFormSubmitFn;
-    onSubmitFailure?(errors: { [index: string]: any }, state: { [index: string]: any }): void;
+    onSubmitFailure?(errors: Obj, values: Obj): void;
     [index: string]: any;
 };
 
 export const RxFormContext = React.createContext<{
     initialValues: FormValues;
     next: (evt: RxFormEvt) => void;
-    getStateStream: () => Observable<any>;
+    getValueStream: () => Observable<any>;
     getSetStream: (field?: string) => Observable<RxFormEvt>;
     getErrorStream: () => Observable<any>;
     getSubmitCountStream: () => Observable<number>;
@@ -36,7 +37,7 @@ export const RxFormContext = React.createContext<{
     next: (_evt: RxFormEvt) => {
         /** noop */
     },
-    getStateStream: () => {
+    getValueStream: () => {
         return EMPTY;
     },
     getErrorStream: () => {
@@ -52,17 +53,16 @@ export const RxFormContext = React.createContext<{
 
 const EMPTY_OBJ = {};
 
-export const RxForm: React.FC<RxFormProps> = React.memo(props => {
+export const RxForm: React.FC<RxFormProps & FormHTMLAttributes<unknown>> = React.memo(props => {
     const { initialValues, onSubmit, onSubmitFailure, ...rest } = props;
 
     const initialValues$ = useRef(new BehaviorSubject(initialValues || {}));
-    const fields$ = useRef(new BehaviorSubject(new Set<string>([])));
     const replayEvents$ = useRef(new ReplaySubject<RxFormEvt>(100));
     const mounted = useRef(false);
     const eventsAfterMount$ = useRef(new Subject<RxFormEvt>());
     // combined events
-    const state$ = useRef(new BehaviorSubject<{ [index: string]: any }>({}));
-    const error$ = useRef(new BehaviorSubject<{ [index: string]: any }>({}));
+    const values$ = useRef(new BehaviorSubject<Obj>({}));
+    const error$ = useRef(new BehaviorSubject<Obj>({}));
     const submit$ = useRef(new BehaviorSubject<number>(0));
     const set$ = useRef(new Subject<RxFormEvt>().pipe(share()));
 
@@ -81,12 +81,12 @@ export const RxForm: React.FC<RxFormProps> = React.memo(props => {
         [mounted],
     );
 
-    const getStateStream = useCallback(() => {
-        if (state$ && state$.current) {
-            return state$.current.pipe(debounceTime(0, asapScheduler), share());
+    const getValuesStream = useCallback(() => {
+        if (values$ && values$.current) {
+            return values$.current.pipe(debounceTime(0, asapScheduler), share());
         }
         return EMPTY;
-    }, [state$]);
+    }, [values$]);
 
     const getErrorStream = useCallback(() => {
         if (error$ && error$.current) {
@@ -133,18 +133,18 @@ export const RxForm: React.FC<RxFormProps> = React.memo(props => {
     );
 
     const userSubmit = useCallback(
-        state => {
+        values => {
             if (onSubmit) {
-                onSubmit(state);
+                onSubmit(values);
             }
         },
         [onSubmit],
     );
 
     const userSubmitFailure = useCallback(
-        (errors, state) => {
+        (errors, values) => {
             if (onSubmitFailure) {
-                onSubmitFailure(errors, state);
+                onSubmitFailure(errors, values);
             }
         },
         [onSubmitFailure],
@@ -160,32 +160,12 @@ export const RxForm: React.FC<RxFormProps> = React.memo(props => {
             tap(x => console.log('set stream', x)),
         );
 
-        /**
-         *
-         * Create a reliable field$ steam
-         *
-         */
-        const fieldSub = event$.pipe(
-            filter(x => x.type === 'field-remove' || x.type === 'field-mount'),
-            scan((acc, item) => {
-                if (item.type === 'field-remove') {
-                    acc.delete(item.field);
-                }
-                if (item.type === 'field-mount') {
-                    acc.add(item.field);
-                }
-                return acc;
-            }, new Set<string>([])),
-            tap(x => fields$.current.next(x)),
-            // tap(x => console.log('fields->>', x)),
-        );
-
         const changes = event$.pipe(
             filter(x => x.type === 'field-remove' || x.type === 'field-mount' || x.type === 'field-change'),
-            // tap(x => console.log('got something that should cause state to change', x)),
+            // tap(x => console.log('got something that should cause values to change', x)),
         );
 
-        const validators$: Observable<{ [index: string]: any }> = event$.pipe(
+        const validators$: Observable<Obj> = event$.pipe(
             filter(x => x.type === 'field-remove' || x.type === 'field-mount' || x.type === 'field-change'),
             scan((acc, evt) => {
                 if (evt.type === 'field-mount') {
@@ -204,45 +184,45 @@ export const RxForm: React.FC<RxFormProps> = React.memo(props => {
             // tap(x => console.log("outgoing validators", x))
         );
 
-        const stateUpdates$ = changes.pipe(
+        const valueUpdates$ = changes.pipe(
             withLatestFrom(initialValues$.current),
-            scan((state, [event, initialValues]) => {
+            scan((values, [event, initialValues]) => {
                 switch (event.type) {
                     case 'field-mount': {
                         if (event.initialValue) {
                             return {
-                                ...state,
+                                ...values,
                                 [event.field]: event.initialValue,
                             };
                         }
                         if (hasValue(initialValues[event.field])) {
                             return {
-                                ...state,
+                                ...values,
                                 [event.field]: initialValues[event.field],
                             };
                         }
                         return {
-                            ...state,
+                            ...values,
                         };
                     }
                     case 'field-remove': {
-                        return dropKey(state, event.field);
+                        return dropKey(values, event.field);
                     }
                     case 'field-change': {
                         if (event.value === null || event.value === undefined || event.value === '') {
-                            return dropKey(state, event.field);
+                            return dropKey(values, event.field);
                         }
                         return {
-                            ...state,
+                            ...values,
                             [event.field]: event.value,
                         };
                     }
                     default:
-                        return state;
+                        return values;
                 }
             }, {}),
-            // tap(x => console.log("outgoing state", x)),
-            tap(state => state$.current.next(state)),
+            // tap(x => console.log("outgoing values", x)),
+            tap(values => values$.current.next(values)),
         );
 
         const errorEvents = event$.pipe(
@@ -257,8 +237,8 @@ export const RxForm: React.FC<RxFormProps> = React.memo(props => {
         );
 
         const errorUpdates$ = errorEvents.pipe(
-            withLatestFrom(state$.current, submit$.current, validators$),
-            scan((outgoing, [event, derivedState, submitCount, validators]) => {
+            withLatestFrom(values$.current, submit$.current, validators$),
+            scan((outgoing, [event, derivedValues, submitCount, validators]) => {
                 switch (event.type) {
                     case 'field-remove': {
                         return dropKey(outgoing, event.field);
@@ -268,7 +248,7 @@ export const RxForm: React.FC<RxFormProps> = React.memo(props => {
                             [index: string]: string | undefined;
                         };
                         Object.keys(validators).forEach(key => {
-                            const curr = derivedState[key];
+                            const curr = derivedValues[key];
                             const validator = validators[key] && validators[key].fn;
                             if (validator) {
                                 const res = validator(curr);
@@ -282,7 +262,7 @@ export const RxForm: React.FC<RxFormProps> = React.memo(props => {
                     case 'field-change': {
                         if (submitCount === 0) return outgoing;
                         const key = event.field;
-                        const curr = derivedState[key];
+                        const curr = derivedValues[key];
                         const validator = validators[key];
                         if (validator && validator.validateOnChange) {
                             return {
@@ -294,7 +274,7 @@ export const RxForm: React.FC<RxFormProps> = React.memo(props => {
                     }
                     case 'field-blur': {
                         const key = event.field;
-                        const curr = derivedState[key];
+                        const curr = derivedValues[key];
                         const validator = validators[key];
                         if (validator && validator.validateOnBlur) {
                             return {
@@ -308,19 +288,19 @@ export const RxForm: React.FC<RxFormProps> = React.memo(props => {
                         return outgoing;
                 }
             }, {}),
-            // tap(x => console.log("outgoing state", x)),
-            tap(state => error$.current.next(state)),
+            // tap(x => console.log("outgoing values", x)),
+            tap(values => error$.current.next(values)),
         );
 
         const submitPassThru = event$.pipe(
             filter(x => x.type === 'submit'),
-            subscribeOn(asyncScheduler), // defer to let errors/state be collected
-            withLatestFrom(error$.current, state$.current),
-            tap(([evt, errors, state]) => {
+            subscribeOn(asyncScheduler), // defer to let errors/values be collected
+            withLatestFrom(error$.current, values$.current),
+            tap(([_evt, errors, values]) => {
                 if (Object.keys(errors).length === 0) {
-                    userSubmit(state);
+                    userSubmit(values);
                 } else {
-                    userSubmitFailure(errors, state);
+                    userSubmitFailure(errors, values);
                 }
             }),
         );
@@ -339,15 +319,7 @@ export const RxForm: React.FC<RxFormProps> = React.memo(props => {
          * The subscriptions / cleanups
          *
          */
-        const sub = merge(
-            event$,
-            fieldSub,
-            stateUpdates$,
-            errorUpdates$,
-            submitEvents,
-            submitPassThru,
-            setSub,
-        ).subscribe();
+        const sub = merge(event$, valueUpdates$, errorUpdates$, submitEvents, submitPassThru, setSub).subscribe();
         mounted.current = true;
         replayEvents$.current.complete();
 
@@ -362,7 +334,7 @@ export const RxForm: React.FC<RxFormProps> = React.memo(props => {
                 value={{
                     next,
                     initialValues: initialValues || EMPTY_OBJ,
-                    getStateStream,
+                    getValueStream: getValuesStream,
                     getErrorStream,
                     getSubmitCountStream,
                     getSetStream,
@@ -376,15 +348,3 @@ export const RxForm: React.FC<RxFormProps> = React.memo(props => {
 
 export default RxForm;
 export const Form = RxForm;
-
-function hasValue(d: any): boolean {
-    return d !== null && d !== undefined;
-}
-
-function dropKey<T extends { [index: string]: any }, S extends string>(obj: T, key: S): { [index: string]: any } {
-    const output = {} as { [index: string]: any };
-    Object.keys(obj).forEach(_key => {
-        if (_key !== key) output[_key] = obj[_key];
-    });
-    return output;
-}

@@ -1,18 +1,16 @@
-import React, { useCallback, useContext, useEffect, useState } from 'react';
+import React, { InputHTMLAttributes, useCallback, useContext, useEffect, useState } from 'react';
 import { noop } from 'rxjs';
 import { distinctUntilChanged, pluck } from 'rxjs/operators';
 
-import { RxValidateFn } from './rx-form-reducer';
+import { RxValidateFn } from './types';
 import { useRxInternalField } from './hooks/useRxInternal';
 
 type RxRadioGroupProps = {
     field: string;
     validate?: RxValidateFn;
-    id?: string;
     validateOnChange?: boolean;
     validateOnBlur?: boolean;
     initialValue?: any;
-    [index: string]: any;
 };
 
 const RContext = React.createContext<{
@@ -27,7 +25,7 @@ const RContext = React.createContext<{
 export const RxRadioGroup: React.FC<RxRadioGroupProps> = React.memo(props => {
     const { validateOnChange, validateOnBlur, validate, field, initialValue } = props;
 
-    const { onChange, formInitialValue, getStateStream } = useRxInternalField(
+    const { onChange, formInitialValue, getValueStream } = useRxInternalField(
         field,
         validate,
         validateOnChange,
@@ -37,11 +35,11 @@ export const RxRadioGroup: React.FC<RxRadioGroupProps> = React.memo(props => {
     const [value, setValue] = useState(formInitialValue);
 
     useEffect(() => {
-        const sub = getStateStream()
+        const sub = getValueStream()
             .pipe(pluck(field), distinctUntilChanged())
             .subscribe(x => setValue(x));
         return () => sub.unsubscribe();
-    }, [field, getStateStream]);
+    }, [field, getValueStream]);
 
     return <RContext.Provider value={{ field, onChange, groupValue: value }}>{props.children}</RContext.Provider>;
 });
@@ -50,7 +48,7 @@ type RxRadioProps = {
     value: string | number;
 };
 
-export const RxRadio: React.FC<RxRadioProps> = props => {
+export const RxRadio: React.FC<RxRadioProps & InputHTMLAttributes<unknown>> = props => {
     const { field, onChange, groupValue } = useContext(RContext);
     const onInputChange = useCallback(
         e => {

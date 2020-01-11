@@ -1,8 +1,7 @@
 import React from 'react';
-import { useRxFormValues } from '../src/hooks';
+import { useFieldValue } from '../src/hooks/useFieldValue';
 
 export const ValueFor: React.FC<{ field: string; render(value?: any): any }> = props => {
-    const values = useRxFormValues();
-    const value = values[props.field];
+    const value = useFieldValue(props.field);
     return props.render(value);
 };

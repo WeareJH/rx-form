@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { InputHTMLAttributes } from 'react';
 
-import { RxValidateFn } from './rx-form-reducer';
+import { RxValidateFn } from './types';
 import { useRxInternalField } from './hooks/useRxInternal';
 
-type RxTextProps = {
+export type TextProps = RxTextProps & InputHTMLAttributes<unknown>;
+
+interface RxTextProps {
     field: string;
     validate?: RxValidateFn;
     id?: string;
@@ -11,9 +13,9 @@ type RxTextProps = {
     validateOnBlur?: boolean;
     initialValue?: any;
     [index: string]: any;
-};
+}
 
-export const RxText: React.FC<RxTextProps> = React.memo(props => {
+export const RxText: React.FC<TextProps> = React.memo(props => {
     const { validateOnChange, validateOnBlur, validate, field, initialValue, ...rest } = props;
     const { onInputChange, onBlur, formInitialValue, ref } = useRxInternalField(
         field,
@@ -26,7 +28,6 @@ export const RxText: React.FC<RxTextProps> = React.memo(props => {
         <input
             {...rest}
             ref={ref as any}
-            id={props.id || props.field}
             name={props.field}
             defaultValue={formInitialValue}
             onChange={onInputChange}

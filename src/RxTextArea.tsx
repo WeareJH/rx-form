@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { InputHTMLAttributes } from 'react';
 import { noop } from 'rxjs';
 
-import { RxValidateFn } from './rx-form-reducer';
+import { RxValidateFn } from './types';
 import { useRxInternalField } from './hooks/useRxInternal';
 
 type RxTextProps = {
@@ -14,7 +14,7 @@ type RxTextProps = {
     [index: string]: any;
 };
 
-export const RxTextArea: React.FC<RxTextProps> = React.memo(props => {
+export const RxTextArea: React.FC<RxTextProps & InputHTMLAttributes<unknown>> = React.memo(props => {
     const { validateOnChange, validateOnBlur, validate, field, initialValue, ...rest } = props;
     const { onInputChange, formInitialValue, ref } = useRxInternalField(
         field,
@@ -27,7 +27,6 @@ export const RxTextArea: React.FC<RxTextProps> = React.memo(props => {
         <textarea
             {...rest}
             ref={ref as any}
-            id={props.id || props.field}
             name={props.field}
             defaultValue={formInitialValue}
             onChange={onInputChange}
