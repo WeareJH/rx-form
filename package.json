@@ -22,6 +22,9 @@
     "files": [
         "dist"
     ],
+    "publishConfig": {
+        "access": "public"
+    },
     "types": "dist/index.d.ts",
     "author": "Shane Osbourne",
     "license": "ISC",
