@@ -1,5 +1,5 @@
 {
-    "name": "rx-form",
+    "name": "@wearejh/rx-form",
     "version": "1.0.0",
     "description": "Form library for React + Preact",
     "main": "dist/index.js",
@@ -9,7 +9,8 @@
         "test": "tsc",
         "build": "rm -rf dist/** && npm run lint:fix && tsc",
         "storybook": "start-storybook -p 6006",
-        "build-storybook": "build-storybook"
+        "build-storybook": "build-storybook",
+        "prepublishOnly": "npm run build"
     },
     "keywords": [
         "react",
@@ -41,7 +42,6 @@
         "babel-loader": "^8.0.6",
         "babel-plugin-typescript-to-proptypes": "1.1.0",
         "debug": "^4.1.1",
-        "dlv": "1.1.3",
         "prettier": "^1.19.1",
         "react": "^16.12.0",
         "react-docgen-typescript-loader": "^3.6.0",
@@ -54,6 +54,7 @@
         "typescript": "^3.7.4"
     },
     "dependencies": {
+        "dlv": "1.1.3",
         "dset": "2.0.1"
     }
 }
