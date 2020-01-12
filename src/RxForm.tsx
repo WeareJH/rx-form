@@ -1,320 +1,146 @@
 import React, { FormHTMLAttributes, useCallback, useEffect, useRef } from 'react';
-import {
-    asapScheduler,
-    asyncScheduler,
-    BehaviorSubject,
-    concat,
-    EMPTY,
-    merge,
-    Observable,
-    ReplaySubject,
-    Subject,
-} from 'rxjs';
-import dlv from 'dlv';
-import { debounceTime, filter, map, scan, share, subscribeOn, tap, withLatestFrom } from 'rxjs/operators';
+import { BehaviorSubject, concat, merge, ReplaySubject, Subject } from 'rxjs';
+import { filter, map, scan, share, tap, withLatestFrom } from 'rxjs/operators';
 
-import { FormValues, RxFormEvt, RxFormSubmitFn, Obj } from './types';
-import { dropKey, hasValue } from './utils/general';
-// import { createDebug } from './utils/debug';
+import { FormValues, Obj, RxFormEvt, RxFormSubmitFailureFn, RxFormSubmitFn } from './types';
+import { valueUpdates } from './utils/valueUpdates';
+import { errorUpdates } from './utils/errorUpdates';
+import { validatorUpdates } from './utils/validatorUpdates';
+import { setStream } from './utils/setStream';
+import { filteredEvents } from './utils/filteredEvents';
+import { streamAccess } from './utils/streamAccess';
+import { handleSubmit } from './utils/handleSubmit';
+import { RxFormContext } from './Context';
 
-// const debug = createDebug('RxForm');
-
-type RxFormProps = {
+export type RxFormProps = {
     initialValues?: FormValues;
     onSubmit?: RxFormSubmitFn;
-    onSubmitFailure?(errors: Obj, values: Obj): void;
-    [index: string]: any;
+    onSubmitFailure?: RxFormSubmitFailureFn;
 };
-
-export const RxFormContext = React.createContext<{
-    initialValues: FormValues;
-    next: (evt: RxFormEvt) => void;
-    getValue: (field: string) => any;
-    getValueStream: () => Observable<any>;
-    getSetStream: (field?: string) => Observable<RxFormEvt>;
-    getErrorStream: () => Observable<any>;
-    getSubmitCountStream: () => Observable<number>;
-}>({
-    initialValues: {},
-    getValue: () => {
-        return undefined;
-    },
-    next: (_evt: RxFormEvt) => {
-        /** noop */
-    },
-    getValueStream: () => {
-        return EMPTY;
-    },
-    getErrorStream: () => {
-        return EMPTY;
-    },
-    getSubmitCountStream: () => {
-        return EMPTY;
-    },
-    getSetStream: () => {
-        return EMPTY;
-    },
-});
 
 const EMPTY_OBJ = {};
 
 export const RxForm: React.FC<RxFormProps & FormHTMLAttributes<unknown>> = React.memo(props => {
     const { initialValues, onSubmit, onSubmitFailure, ...rest } = props;
 
-    const initialValues$ = useRef(new BehaviorSubject(initialValues || {}));
+    /**
+     * Track upto 100 sub-component mounts. This is needed
+     * because `useEffect` will be called on Children before
+     * it will on this `parent` component
+     */
     const replayEvents$ = useRef(new ReplaySubject<RxFormEvt>(100));
-    const mounted = useRef(false);
+
+    /**
+     * Once mounted & useEffect has ran once, we switch to this
+     * event
+     */
     const eventsAfterMount$ = useRef(new Subject<RxFormEvt>());
-    // combined events
+
+    /**
+     * A stream of events that children can listen to in order
+     * to have their values 'set'
+     */
+    const set$ = useRef(new Subject<RxFormEvt>().pipe(share()));
+
+    /**
+     * These stream are what all state is derived from.
+     */
+    const initialValues$ = useRef(new BehaviorSubject<Obj>(initialValues || {}));
     const values$ = useRef(new BehaviorSubject<Obj>({}));
     const error$ = useRef(new BehaviorSubject<Obj>({}));
     const submit$ = useRef(new BehaviorSubject<number>(0));
-    const set$ = useRef(new Subject<RxFormEvt>().pipe(share()));
 
+    /**
+     * Ensure any changes to 'initialValues' cause appropriate down-stream changes
+     */
     useEffect(() => {
         initialValues$.current.next(initialValues || {});
     }, [initialValues]);
 
-    const getValue = useCallback(
-        (field: string) => {
-            return dlv(values$.current.value, field);
-        },
-        [values$],
-    );
+    /**
+     * Track when this 'parent' has rendered at least once
+     * and then switch to the other (long-term) stream of events
+     */
+    const mounted = useRef(false);
 
+    /**
+     * This is how children communicate to this parent.
+     */
     const next = useCallback(
-        x => {
+        (event: RxFormEvt) => {
             if (mounted.current) {
-                eventsAfterMount$.current.next(x);
+                eventsAfterMount$.current.next(event);
             } else {
-                replayEvents$.current.next(x);
+                replayEvents$.current.next(event);
             }
         },
         [mounted],
     );
 
-    const getValuesStream = useCallback(() => {
-        if (values$ && values$.current) {
-            return values$.current.pipe(debounceTime(0, asapScheduler), share());
-        }
-        return EMPTY;
-    }, [values$]);
-
-    const getErrorStream = useCallback(() => {
-        if (error$ && error$.current) {
-            return error$.current.pipe(debounceTime(0, asapScheduler), share());
-        }
-        return EMPTY;
-    }, [error$]);
-
-    const getSubmitCountStream = useCallback(() => {
-        if (submit$ && submit$.current) {
-            return submit$.current.pipe(debounceTime(0, asapScheduler), share());
-        }
-        return EMPTY;
-    }, [submit$]);
-
-    const getSetStream = useCallback(
-        (field?: string) => {
-            if (set$ && set$.current) {
-                if (field) {
-                    return set$.current.pipe(
-                        filter(x => {
-                            if (x.type === 'set-field-value') {
-                                return x.field === field;
-                            }
-                            return false;
-                        }),
-                        debounceTime(0, asapScheduler),
-                        share(),
-                    );
-                }
-                return set$.current.pipe(debounceTime(0, asapScheduler), share());
-            }
-            return EMPTY;
+    /**
+     * Imperative API that allows one to retrieve any current 'value'
+     */
+    const getValue = useCallback(
+        (field: string) => {
+            return values$.current.value[field];
         },
-        [set$],
+        [values$],
     );
 
-    const submit = useCallback(
-        e => {
-            e.preventDefault();
-            next({ type: 'submit' });
-        },
-        [next],
-    );
+    /**
+     * Allow children to get a stream of value changes
+     */
+    const getValuesStream = streamAccess(values$);
 
-    const userSubmit = useCallback(
-        values => {
-            if (onSubmit) {
-                onSubmit(values);
-            }
-        },
-        [onSubmit],
-    );
+    /**
+     * Allow children to get a stream of error changes
+     */
+    const getErrorStream = streamAccess(error$);
 
-    const userSubmitFailure = useCallback(
-        (errors, values) => {
-            if (onSubmitFailure) {
-                onSubmitFailure(errors, values);
-            }
-        },
-        [onSubmitFailure],
-    );
+    /**
+     * Allow children to get a stream of submit-count changes
+     */
+    const getSubmitCountStream = streamAccess(submit$);
+
+    /**
+     * Allow children to get a stream of 'set-value' events.
+     * This is used for the imperative `setValue` & `setValues` event
+     */
+    const getSetStream = useCallback((field?: string) => setStream(set$.current, field), [set$]);
+
+    /**
+     * This is the main handler for the <form> element
+     */
+    const htmlFormSubmit = handleSubmit(onSubmit, onSubmitFailure, next, eventsAfterMount$, error$, values$);
 
     // handle mounted/unmounted events
     useEffect(() => {
         const event$ = concat(replayEvents$.current, eventsAfterMount$.current);
+        const setSub = filteredEvents(event$, ['set-field-value']).pipe(tap(evt => (set$.current as any).next(evt)));
 
-        const setSub = event$.pipe(
-            filter(x => x.type === 'set-field-value'),
-            tap(evt => (set$.current as any).next(evt)),
-            tap(x => console.log('set stream', x)),
+        /**
+         * Track validators that are registered
+         */
+        const validators$ = filteredEvents(event$, ['field-unmount', 'field-mount', 'field-change']).pipe(
+            scan(validatorUpdates, {}),
         );
 
-        const changes = event$.pipe(
-            filter(x => x.type === 'field-remove' || x.type === 'field-mount' || x.type === 'field-change'),
-            // tap(x => console.log('got something that should cause values to change', x)),
-        );
-
-        const validators$: Observable<Obj> = event$.pipe(
-            filter(x => x.type === 'field-remove' || x.type === 'field-mount' || x.type === 'field-change'),
-            scan((acc, evt) => {
-                if (evt.type === 'field-mount') {
-                    if (evt.validate && typeof evt.validate.fn === 'function') {
-                        return {
-                            ...acc,
-                            [evt.field]: evt.validate,
-                        };
-                    }
-                }
-                if (evt.type === 'field-remove') {
-                    return dropKey(acc, evt.field);
-                }
-                return acc;
-            }, {}),
-            // tap(x => console.log("outgoing validators", x))
-        );
-
-        const valueUpdates$ = changes.pipe(
+        /**
+         * Update the 'values'
+         */
+        const valueUpdates$ = filteredEvents(event$, ['field-unmount', 'field-mount', 'field-change']).pipe(
             withLatestFrom(initialValues$.current),
-            scan((values, [event, initialValues]) => {
-                switch (event.type) {
-                    case 'field-mount': {
-                        if (event.initialValue) {
-                            return {
-                                ...values,
-                                [event.field]: event.initialValue,
-                            };
-                        }
-                        if (hasValue(initialValues[event.field])) {
-                            return {
-                                ...values,
-                                [event.field]: initialValues[event.field],
-                            };
-                        }
-                        return {
-                            ...values,
-                        };
-                    }
-                    case 'field-remove': {
-                        return dropKey(values, event.field);
-                    }
-                    case 'field-change': {
-                        if (event.value === null || event.value === undefined || event.value === '') {
-                            return dropKey(values, event.field);
-                        }
-                        return {
-                            ...values,
-                            [event.field]: event.value,
-                        };
-                    }
-                    default:
-                        return values;
-                }
-            }, {}),
-            // tap(x => console.log("outgoing values", x)),
+            scan(valueUpdates, {}),
             tap(values => values$.current.next(values)),
         );
 
-        const errorEvents = event$.pipe(
-            filter(
-                x =>
-                    x.type === 'field-remove' ||
-                    x.type === 'field-change' ||
-                    x.type === 'submit' ||
-                    x.type === 'field-blur',
-            ),
-            // tap(x => console.log("caused error tracking--->", x)),
-        );
-
-        const errorUpdates$ = errorEvents.pipe(
+        /**
+         * Update the 'errors'
+         */
+        const errorUpdates$ = filteredEvents(event$, ['field-unmount', 'field-change', 'submit', 'field-blur']).pipe(
             withLatestFrom(values$.current, submit$.current, validators$),
-            scan((outgoing, [event, derivedValues, submitCount, validators]) => {
-                switch (event.type) {
-                    case 'field-remove': {
-                        return dropKey(outgoing, event.field);
-                    }
-                    case 'submit': {
-                        const next = {} as {
-                            [index: string]: string | undefined;
-                        };
-                        Object.keys(validators).forEach(key => {
-                            const curr = derivedValues[key];
-                            const validator = validators[key] && validators[key].fn;
-                            if (validator) {
-                                const res = validator(curr);
-                                if (res !== undefined) {
-                                    next[key] = res;
-                                }
-                            }
-                        });
-                        return next;
-                    }
-                    case 'field-change': {
-                        if (submitCount === 0) return outgoing;
-                        const key = event.field;
-                        const curr = derivedValues[key];
-                        const validator = validators[key];
-                        if (validator && validator.validateOnChange) {
-                            return {
-                                ...outgoing,
-                                [key]: validator.fn(curr),
-                            };
-                        }
-                        return outgoing;
-                    }
-                    case 'field-blur': {
-                        const key = event.field;
-                        const curr = derivedValues[key];
-                        const validator = validators[key];
-                        if (validator && validator.validateOnBlur) {
-                            return {
-                                ...outgoing,
-                                [key]: validator.fn(curr),
-                            };
-                        }
-                        return outgoing;
-                    }
-                    default:
-                        return outgoing;
-                }
-            }, {}),
-            // tap(x => console.log("outgoing values", x)),
+            scan(errorUpdates, {}),
             tap(values => error$.current.next(values)),
-        );
-
-        const submitPassThru = event$.pipe(
-            filter(x => x.type === 'submit'),
-            subscribeOn(asyncScheduler), // defer to let errors/values be collected
-            withLatestFrom(error$.current, values$.current),
-            tap(([_evt, errors, values]) => {
-                if (Object.keys(errors).length === 0) {
-                    userSubmit(values);
-                } else {
-                    userSubmitFailure(errors, values);
-                }
-            }),
         );
 
         /**
@@ -331,8 +157,16 @@ export const RxForm: React.FC<RxFormProps & FormHTMLAttributes<unknown>> = React
          * The subscriptions / cleanups
          *
          */
-        const sub = merge(event$, valueUpdates$, errorUpdates$, submitEvents, submitPassThru, setSub).subscribe();
+        const sub = merge(event$, valueUpdates$, errorUpdates$, submitEvents, setSub).subscribe();
+
+        /**
+         * Mark this component as rendered at least once
+         */
         mounted.current = true;
+
+        /**
+         * On first render, complete the Replay subject to prevent memory leaks.
+         */
         replayEvents$.current.complete();
 
         return () => {
@@ -341,7 +175,7 @@ export const RxForm: React.FC<RxFormProps & FormHTMLAttributes<unknown>> = React
     }, []);
 
     return (
-        <form {...rest} onSubmit={submit}>
+        <form {...rest} onSubmit={htmlFormSubmit}>
             <RxFormContext.Provider
                 value={{
                     next,

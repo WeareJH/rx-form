@@ -1,7 +1,8 @@
 import React from 'react';
 import { action } from '@storybook/addon-actions';
 import { State } from './State';
-import { Form, Text } from '../src';
+import { Form, RxText, Text } from '../src';
+import { Demo } from './Demo';
 
 export default {
     title: 'Inputs',
@@ -10,16 +11,17 @@ export default {
 export const text = () => {
     return (
         <Form>
-            <label>
-                First name:
-                <Text field="firstname" />
-            </label>
-            <label>
-                Last name:
-                <Text field="lastname" />
-            </label>
-            <button type="submit">Submit</button>
-            <State />
+            <Demo>
+                <label>
+                    First name:
+                    <Text field="firstname" />
+                </label>
+                <label>
+                    Last name:
+                    <Text field="lastname" />
+                </label>
+                <button type="submit">Submit</button>
+            </Demo>
         </Form>
     );
 };
@@ -31,16 +33,17 @@ export const textWithInitialProps = () => {
             onSubmit={action('onSubmit')}
             onSubmitFailure={action('onSubmitFailure')}
         >
-            <label>
-                First name:
-                <Text field="firstname" />
-            </label>
-            <label>
-                Last name:
-                <Text field="lastname" />
-            </label>
-            <button type="submit">Submit</button>
-            <State />
+            <Demo>
+                <label>
+                    First name:
+                    <Text field="firstname" autoComplete={'off'} />
+                </label>
+                <label>
+                    Last name:
+                    <Text field="lastname" autoComplete={'off'} />
+                </label>
+                <button type="submit">Submit</button>
+            </Demo>
         </Form>
     );
 };

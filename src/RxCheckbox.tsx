@@ -12,7 +12,6 @@ type RxCheckboxProps = {
     validateOnChange?: boolean;
     validateOnBlur?: boolean;
     initialValue?: any;
-    [index: string]: any;
 };
 
 export const RxCheckbox: React.FC<RxCheckboxProps & InputHTMLAttributes<unknown>> = React.memo(props => {
@@ -44,7 +43,6 @@ export const RxCheckbox: React.FC<RxCheckboxProps & InputHTMLAttributes<unknown>
         <input
             {...rest}
             ref={ref as any}
-            id={props.id || props.field}
             name={props.field}
             onChange={onChangeHandler}
             onBlur={(props.validateOnBlur && blur) || noop}

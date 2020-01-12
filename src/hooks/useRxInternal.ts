@@ -1,9 +1,9 @@
 import { useCallback, useContext, useEffect, useRef } from 'react';
 import { tap } from 'rxjs/operators';
 
-import { RxFormContext } from '../RxForm';
 import { createDebug } from '../utils/debug';
 import { RxValidateFn } from '../types';
+import { RxFormContext } from '../Context';
 
 const debug = createDebug('useRxInternalField');
 
@@ -62,7 +62,7 @@ export function useRxInternalField(
      * Handle field un-mount
      */
     useEffect(() => {
-        return () => next({ type: 'field-remove', field: field });
+        return () => next({ type: 'field-unmount', field: field });
     }, [next, field]);
 
     const ref = useRef<HTMLInputElement>();
