@@ -1,28 +1,21 @@
 import React, { InputHTMLAttributes } from 'react';
 import { noop } from 'rxjs';
 
-import { RxValidateFn } from './types';
+import { DefaultProps } from './types';
 import { useRxInternalField } from './hooks/useRxInternal';
 
-type RxTextProps = {
-    field: string;
-    validate?: RxValidateFn;
-    id?: string;
-    validateOnChange?: boolean;
-    validateOnBlur?: boolean;
-    initialValue?: any;
-    [index: string]: any;
-};
+type TextAreaProps = DefaultProps & InputHTMLAttributes<unknown>;
 
-export const RxTextArea: React.FC<RxTextProps & InputHTMLAttributes<unknown>> = React.memo(props => {
-    const { validateOnChange, validateOnBlur, validate, field, initialValue, ...rest } = props;
-    const { onInputChange, formInitialValue, ref } = useRxInternalField(
+export const RxTextArea: React.FC<TextAreaProps> = React.memo(props => {
+    const { validateOnChange, validateOnBlur, validateNotify, validate, field, initialValue, ...rest } = props;
+    const { onInputChange, formInitialValue, ref } = useRxInternalField({
         field,
         validate,
         validateOnChange,
         validateOnBlur,
+        validateNotify,
         initialValue,
-    );
+    });
     return (
         <textarea
             {...rest}

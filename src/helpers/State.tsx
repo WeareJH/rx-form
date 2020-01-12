@@ -1,7 +1,7 @@
 import React from 'react';
-import { useFormValues } from '../src/hooks/useFormValues';
-import { useFormErrors } from '../src/hooks/useFormErrors';
-import { useSubmitCount } from '../src/hooks/useSubmitCount';
+import { useFormValues } from '../hooks/useFormValues';
+import { useFormErrors } from '../hooks/useFormErrors';
+import { useSubmitCount } from '../hooks/useSubmitCount';
 
 export const State: React.FC = () => {
     const state = useFormValues();

@@ -22,6 +22,19 @@ export interface RxFormState {
     submits: number;
 }
 
+export interface FieldProps {
+    field: string;
+    validate?: RxValidateFn;
+    initialValue?: any;
+}
+
+export interface ValidateProps {
+    validateOnChange?: boolean;
+    validateOnBlur?: boolean;
+    validateNotify?: string[];
+}
+export type DefaultProps = FieldProps & ValidateProps;
+
 export type RxFormEvt =
     | {
           type: 'field-change';

@@ -1,14 +1,23 @@
 import { useContext, useEffect, useState } from 'react';
-import { pluck, tap } from 'rxjs/operators';
+import { distinctUntilChanged, pluck, tap } from 'rxjs/operators';
 import { RxFormContext } from '../Context';
+import { createDebug } from '../utils/debug';
 
-export function useFieldValue(field: string) {
+const debug = createDebug('useFieldValue');
+
+export function useFieldValue(field: string): any {
     const { getValueStream } = useContext(RxFormContext);
 
     const [state, setState] = useState(undefined);
     useEffect(() => {
+        debug('++mount', field);
         const sub = getValueStream()
-            .pipe(pluck(field), tap(setState))
+            .pipe(
+                pluck(field),
+                distinctUntilChanged(),
+                tap(x => debug('setting state', x, field)),
+                tap(setState),
+            )
             .subscribe();
         return () => sub.unsubscribe();
     }, [getValueStream]);

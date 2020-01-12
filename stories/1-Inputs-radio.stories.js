@@ -1,6 +1,6 @@
 import React from 'react';
 import { Form, RadioGroup, Radio } from '../src';
-import { State } from './State';
+import { State } from '../src/helpers/State';
 
 export default {
     title: 'Inputs',

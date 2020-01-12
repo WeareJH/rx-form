@@ -1,7 +1,7 @@
 import React from 'react';
 import { Checkbox, Form, Radio, RadioGroup, Select, Text } from '../src';
 import { Demo } from './Demo';
-import { ErrorFor } from './ErrorFor';
+import { ErrorFor } from '../src/helpers/ErrorFor';
 import { action } from '@storybook/addon-actions';
 import { useFormApi } from '../src/hooks/useFormApi';
 

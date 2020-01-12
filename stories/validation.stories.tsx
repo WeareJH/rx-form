@@ -1,6 +1,6 @@
 import React from 'react';
 import { Form, Text } from '../src';
-import { ErrorFor } from './ErrorFor';
+import { ErrorFor } from '../src/helpers/ErrorFor';
 import { Demo } from './Demo';
 
 export default {

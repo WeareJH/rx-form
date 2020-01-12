@@ -1,5 +1,5 @@
 import React from 'react';
-import { State } from './State';
+import { State } from '../src/helpers/State';
 
 export const Demo: React.FC = props => {
     return (
