@@ -6,8 +6,9 @@
     "scripts": {
         "lint": "prettier --tab-width 4 'src/**' 'stories/**' '.storybook/**'",
         "lint:fix": "npm run lint -- --write",
+        "lint:check": "npm run lint -- --check",
         "test": "tsc",
-        "build": "rm -rf dist/** && npm run lint:fix && tsc",
+        "build": "rm -rf dist/** && npm run lint:check && tsc",
         "storybook": "start-storybook -p 6006",
         "build-storybook": "build-storybook",
         "prepublishOnly": "npm run build"
