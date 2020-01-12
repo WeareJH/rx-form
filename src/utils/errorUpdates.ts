@@ -32,7 +32,7 @@ export function errorUpdates(outgoing: Obj, [event, derivedValues, submitCount, 
                 const curr = derivedValues[key];
                 const validator = validators[key] && validators[key].fn;
                 if (validator) {
-                    const res = validator(curr);
+                    const res = validator(curr, derivedValues);
                     if (res !== undefined) {
                         next[key] = res;
                     }
@@ -46,10 +46,38 @@ export function errorUpdates(outgoing: Obj, [event, derivedValues, submitCount, 
             const curr = derivedValues[key];
             const validator = validators[key];
             if (validator && validator.validateOnChange) {
-                return {
+                /**
+                 * Get the validation answer from the field that actually changed first.
+                 */
+                const result = validator.fn(curr, derivedValues);
+                const isValid = result === undefined;
+
+                /**
+                 * As a minimum, we set this field
+                 */
+                const next = {
                     ...outgoing,
-                    [key]: validator.fn(curr),
+                    [key]: validator.fn(curr, derivedValues),
                 };
+
+                /**
+                 * If the `validateNotify` property exists, we'll through
+                 * each item and run it's validation.
+                 *
+                 * Note: We currently only run the 'other' validations
+                 * if the `current` validation (the field that changed) is
+                 * now valid. This may need opening up to configuration later.
+                 */
+                if (isValid && Array.isArray(validator.validateNotify)) {
+                    validator.validateNotify.forEach(key => {
+                        const curr = derivedValues[key];
+                        const validator = validators[key];
+                        if (validator && validator.validateOnChange) {
+                            next[key] = validator.fn(curr, derivedValues);
+                        }
+                    });
+                }
+                return next;
             }
             return outgoing;
         }
@@ -60,7 +88,7 @@ export function errorUpdates(outgoing: Obj, [event, derivedValues, submitCount, 
             if (validator && validator.validateOnBlur) {
                 return {
                     ...outgoing,
-                    [key]: validator.fn(curr),
+                    [key]: validator.fn(curr, derivedValues),
                 };
             }
             return outgoing;

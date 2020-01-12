@@ -20,16 +20,18 @@ interface RxTextProps {
     id?: string;
     validateOnChange?: boolean;
     validateOnBlur?: boolean;
+    validateNotify?: string[];
     initialValue?: any;
 }
 
 export const RxText: React.FC<TextProps> = React.memo(props => {
-    const { validateOnChange, validateOnBlur, validate, field, initialValue, ...rest } = props;
+    const { validateOnChange, validateOnBlur, validate, field, initialValue, validateNotify, ...rest } = props;
     const { onInputChange, onBlur, formInitialValue, ref } = useRxInternalField(
         field,
         validate,
         validateOnChange,
         validateOnBlur,
+        validateNotify,
         initialValue,
     );
     return (

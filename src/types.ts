@@ -8,6 +8,7 @@ export type RxValidate = {
     fn: RxValidateFn;
     validateOnChange?: boolean;
     validateOnBlur?: boolean;
+    validateNotify?: string[];
 };
 export type RxValidateFn = (value: any, values?: { [index: string]: any }) => string | undefined;
 export type RxFormSubmitFn = (expandedValues: Obj, values: Obj) => void;

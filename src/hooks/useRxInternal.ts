@@ -12,6 +12,7 @@ export function useRxInternalField(
     validate?: RxValidateFn,
     validateOnChange?: boolean,
     validateOnBlur?: boolean,
+    validateNotify?: string[],
     initialValue?: any,
 ) {
     const { next, initialValues, getSetStream, getValueStream } = useContext(RxFormContext);
@@ -48,6 +49,7 @@ export function useRxInternalField(
                   fn: validate,
                   validateOnChange,
                   validateOnBlur,
+                  validateNotify,
               }
             : undefined;
         next({
