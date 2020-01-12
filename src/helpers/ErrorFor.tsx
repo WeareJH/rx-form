@@ -1,5 +1,5 @@
 import React from 'react';
-import { useFieldError } from '../src/hooks/useFieldError';
+import { useFieldError } from '../hooks/useFieldError';
 
 export const ErrorFor: React.FC<{ field: string }> = props => {
     const error = useFieldError(props.field);

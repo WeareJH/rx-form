@@ -1,28 +1,32 @@
 import React, { InputHTMLAttributes, useMemo } from 'react';
 import { noop } from 'rxjs';
 
-import { RxValidateFn } from './types';
+import { DefaultProps } from './types';
 import { useRxInternalField } from './hooks/useRxInternal';
 
-type RxTextProps = {
-    field: string;
-    validate?: RxValidateFn;
-    id?: string;
-    validateOnChange?: boolean;
-    validateOnBlur?: boolean;
-    initialValue?: any;
+type SelectProps = DefaultProps & {
     options?: { value: string | number; label: string; selected?: boolean }[];
 };
 
-export const RxSelect: React.FC<RxTextProps & InputHTMLAttributes<unknown>> = React.memo(props => {
-    const { validateOnChange, validateOnBlur, validate, field, initialValue, options = [], ...rest } = props;
-    const { onInputChange, formInitialValue, ref } = useRxInternalField(
+export const RxSelect: React.FC<SelectProps & InputHTMLAttributes<unknown>> = React.memo(props => {
+    const {
+        validateOnChange,
+        validateOnBlur,
+        validateNotify,
+        validate,
+        field,
+        initialValue,
+        options = [],
+        ...rest
+    } = props;
+    const { onInputChange, formInitialValue, ref } = useRxInternalField({
         field,
         validate,
         validateOnChange,
         validateOnBlur,
+        validateNotify,
         initialValue,
-    );
+    });
     const inner = useMemo(() => {
         if (Array.isArray(options)) {
             return options.map(opt => {

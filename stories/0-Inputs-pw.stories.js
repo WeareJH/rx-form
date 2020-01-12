@@ -1,9 +1,9 @@
 import React from 'react';
 import { action } from '@storybook/addon-actions';
-import { State } from './State';
+import { State } from '../src/helpers/State';
 import { Form, RxText, Text } from '../src';
 import { Demo } from './Demo';
-import { ErrorFor } from './ErrorFor';
+import { ErrorFor } from '../src/helpers/ErrorFor';
 
 export default {
     title: 'Inputs',

@@ -2,27 +2,21 @@ import React, { InputHTMLAttributes, useCallback, useEffect, useState } from 're
 import { noop } from 'rxjs';
 import { distinctUntilChanged, pluck, tap } from 'rxjs/operators';
 
-import { RxValidateFn } from './types';
+import { DefaultProps } from './types';
 import { useRxInternalField } from './hooks/useRxInternal';
 
-type RxCheckboxProps = {
-    field: string;
-    validate?: RxValidateFn;
-    id?: string;
-    validateOnChange?: boolean;
-    validateOnBlur?: boolean;
-    initialValue?: any;
-};
+type CheckboxProps = DefaultProps & InputHTMLAttributes<unknown>;
 
-export const RxCheckbox: React.FC<RxCheckboxProps & InputHTMLAttributes<unknown>> = React.memo(props => {
-    const { validateOnChange, validateOnBlur, validate, field, initialValue, ...rest } = props;
-    const { onChange, formInitialValue, ref, getValueStream } = useRxInternalField(
+export const RxCheckbox: React.FC<CheckboxProps> = React.memo(props => {
+    const { validateOnChange, validateOnBlur, validate, validateNotify, field, initialValue, ...rest } = props;
+    const { onChange, formInitialValue, ref, getValueStream } = useRxInternalField({
         field,
         validate,
         validateOnChange,
         validateOnBlur,
+        validateNotify,
         initialValue,
-    );
+    });
     const [value, setValue] = useState(formInitialValue);
 
     const onChangeHandler = useCallback(

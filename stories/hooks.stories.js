@@ -1,8 +1,8 @@
 import React from 'react';
-import { State } from './State';
+import { State } from '../src/helpers/State';
 import { Form, Text } from '../src';
-import { ErrorFor } from './ErrorFor';
-import { ValueFor } from './ValueFor';
+import { ErrorFor } from '../src/helpers/ErrorFor';
+import { ValueFor } from '../src/helpers/ValueFor';
 import { Demo } from './Demo';
 import { useFieldValue } from '../src/hooks/useFieldValue';
 import { useFormValues } from '../src/hooks/useFormValues';

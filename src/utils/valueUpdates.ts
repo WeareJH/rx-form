@@ -1,5 +1,8 @@
 import { Obj, RxFormEvt } from '../types';
 import { dropKey, hasValue } from './general';
+import { createDebug } from './debug';
+
+const debug = createDebug('valueUpdates');
 
 /**
  * Track form 'values'
@@ -9,6 +12,7 @@ import { dropKey, hasValue } from './general';
  * @param initialValues
  */
 export function valueUpdates(values: Obj, [event, initialValues]: [RxFormEvt, Obj]): Obj {
+    debug('handling', event);
     switch (event.type) {
         case 'field-mount': {
             if (event.initialValue) {
@@ -34,6 +38,7 @@ export function valueUpdates(values: Obj, [event, initialValues]: [RxFormEvt, Ob
             if (event.value === null || event.value === undefined || event.value === '') {
                 return dropKey(values, event.field);
             }
+            debug('field-change, updating', event.value);
             return {
                 ...values,
                 [event.field]: event.value,

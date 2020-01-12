@@ -1,6 +1,6 @@
 import React from 'react';
 import { Form, RadioGroup, Radio, Checkbox } from '../src';
-import { State } from './State';
+import { State } from '../src/helpers/State';
 import { Demo } from './Demo';
 
 export default {

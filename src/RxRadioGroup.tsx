@@ -2,16 +2,10 @@ import React, { InputHTMLAttributes, useCallback, useContext, useEffect, useStat
 import { noop } from 'rxjs';
 import { distinctUntilChanged, pluck } from 'rxjs/operators';
 
-import { RxValidateFn } from './types';
+import { DefaultProps } from './types';
 import { useRxInternalField } from './hooks/useRxInternal';
 
-type RxRadioGroupProps = {
-    field: string;
-    validate?: RxValidateFn;
-    validateOnChange?: boolean;
-    validateOnBlur?: boolean;
-    initialValue?: any;
-};
+type RadioGroupProps = DefaultProps;
 
 const RContext = React.createContext<{
     field: string;
@@ -22,16 +16,17 @@ const RContext = React.createContext<{
     onChange: (..._args) => noop,
 });
 
-export const RxRadioGroup: React.FC<RxRadioGroupProps> = React.memo(props => {
-    const { validateOnChange, validateOnBlur, validate, field, initialValue } = props;
+export const RxRadioGroup: React.FC<RadioGroupProps> = React.memo(props => {
+    const { validateOnChange, validateOnBlur, validateNotify, validate, field, initialValue } = props;
 
-    const { onChange, formInitialValue, getValueStream } = useRxInternalField(
+    const { onChange, formInitialValue, getValueStream } = useRxInternalField({
         field,
         validate,
         validateOnChange,
         validateOnBlur,
+        validateNotify,
         initialValue,
-    );
+    });
     const [value, setValue] = useState(formInitialValue);
 
     useEffect(() => {
@@ -45,7 +40,7 @@ export const RxRadioGroup: React.FC<RxRadioGroupProps> = React.memo(props => {
 });
 
 type RxRadioProps = {
-    value: string | number;
+    value: any;
 };
 
 export const RxRadio: React.FC<RxRadioProps & InputHTMLAttributes<unknown>> = props => {

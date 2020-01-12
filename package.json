@@ -1,6 +1,6 @@
 {
     "name": "@wearejh/rx-form",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "description": "Form library for React + Preact",
     "main": "dist/index.js",
     "scripts": {
@@ -22,6 +22,9 @@
     "files": [
         "dist"
     ],
+    "publishConfig": {
+        "access": "public"
+    },
     "types": "dist/index.d.ts",
     "author": "Shane Osbourne",
     "license": "ISC",

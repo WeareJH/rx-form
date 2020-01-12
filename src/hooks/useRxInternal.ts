@@ -7,14 +7,17 @@ import { RxFormContext } from '../Context';
 
 const debug = createDebug('useRxInternalField');
 
-export function useRxInternalField(
-    field: string,
-    validate?: RxValidateFn,
-    validateOnChange?: boolean,
-    validateOnBlur?: boolean,
-    validateNotify?: string[],
-    initialValue?: any,
-) {
+interface UseRxInternalFieldParams {
+    field: string;
+    validate?: RxValidateFn;
+    validateOnChange?: boolean;
+    validateOnBlur?: boolean;
+    validateNotify?: string[];
+    initialValue?: any;
+}
+
+export function useRxInternalField(params: UseRxInternalFieldParams) {
+    const { field, validate, validateOnChange, validateOnBlur, validateNotify, initialValue } = params;
     const { next, initialValues, getSetStream, getValueStream } = useContext(RxFormContext);
     const formInitialValue = initialValue ?? initialValues[field];
 

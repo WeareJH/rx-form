@@ -1,5 +1,5 @@
 import { RxFormApi } from '../types';
-import { useCallback, useContext } from 'react';
+import { useCallback, useContext, useMemo } from 'react';
 import { RxFormContext } from '../Context';
 
 /**
@@ -29,5 +29,7 @@ export function useFormApi(): RxFormApi {
     const getValue = useCallback((field: string) => {
         return ctx.getValue(field);
     }, []);
-    return { setValue, setValues, getValue };
+    return useMemo(() => {
+        return { setValue, setValues, getValue };
+    }, []);
 }
