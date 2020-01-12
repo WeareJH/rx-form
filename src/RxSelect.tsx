@@ -12,7 +12,6 @@ type RxTextProps = {
     validateOnBlur?: boolean;
     initialValue?: any;
     options?: { value: string | number; label: string; selected?: boolean }[];
-    [index: string]: any;
 };
 
 export const RxSelect: React.FC<RxTextProps & InputHTMLAttributes<unknown>> = React.memo(props => {

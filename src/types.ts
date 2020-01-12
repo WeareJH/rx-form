@@ -10,20 +10,15 @@ export type RxValidate = {
     validateOnBlur?: boolean;
 };
 export type RxValidateFn = (value: any, values?: { [index: string]: any }) => string | undefined;
-export type RxField = { value?: any; error?: string };
-export type RxFormSubmitFn = any;
-export type Fields = { [index: string]: RxField };
-export type FormValues = { [index: string]: any | undefined };
+export type RxFormSubmitFn = (expandedValues: Obj, values: Obj) => void;
+export type RxFormSubmitFailureFn = (errors: Obj, expandedValues: Obj, values: Obj) => void;
+export type FormValues = Obj;
 export type FormErrors = { [index: string]: string | undefined };
-export type FormValidators = { [index: string]: RxValidateFn | undefined };
+export type FormValidators = { [index: string]: RxValidate };
 export interface RxFormState {
     errors: FormErrors;
     values: FormValues;
     submits: number;
-}
-export interface RxFieldState {
-    error: string | undefined;
-    value: any;
 }
 
 export type RxFormEvt =
@@ -42,7 +37,7 @@ export type RxFormEvt =
           field: string;
       }
     | {
-          type: 'field-remove';
+          type: 'field-unmount';
           field: string;
       }
     | {
@@ -79,3 +74,5 @@ export type RxFormEvt =
     | {
           type: 'submit-failed';
       };
+
+export type EvtNames = RxFormEvt['type'];

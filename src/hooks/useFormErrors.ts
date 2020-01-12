@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from 'react';
-import { RxFormContext } from '../RxForm';
 import { tap } from 'rxjs/operators';
+import { RxFormContext } from '../Context';
 
 export function useFormErrors(): { [index: string]: any } {
     const { getErrorStream } = useContext(RxFormContext);

@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from 'react';
-import { RxFormContext } from '../RxForm';
 import { pluck, tap } from 'rxjs/operators';
+import { RxFormContext } from '../Context';
 
 export function useFieldError(field: string): string | undefined {
     const { getErrorStream } = useContext(RxFormContext);

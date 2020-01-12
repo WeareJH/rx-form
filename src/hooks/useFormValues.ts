@@ -1,6 +1,7 @@
 import { useContext, useEffect, useState } from 'react';
-import { RxFormContext } from '../RxForm';
-import { tap } from 'rxjs/operators';
+import { map, tap } from 'rxjs/operators';
+import { RxFormContext } from '../Context';
+import { expand } from '../utils/expand';
 
 export function useFormValues() {
     const { initialValues, getValueStream } = useContext(RxFormContext);
@@ -8,7 +9,7 @@ export function useFormValues() {
     const [state, setState] = useState(initialValues);
     useEffect(() => {
         const sub = getValueStream()
-            .pipe(tap(setState))
+            .pipe(map(expand), tap(setState))
             .subscribe();
         return () => sub.unsubscribe();
     }, [getValueStream]);

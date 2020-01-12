@@ -3,16 +3,24 @@ import React, { InputHTMLAttributes } from 'react';
 import { RxValidateFn } from './types';
 import { useRxInternalField } from './hooks/useRxInternal';
 
+/**
+ * This component accepts
+ */
 export type TextProps = RxTextProps & InputHTMLAttributes<unknown>;
 
+/**
+ * These are the rx-form specific fields
+ */
 interface RxTextProps {
+    /**
+     * Field is the unique identifier for this field
+     */
     field: string;
     validate?: RxValidateFn;
     id?: string;
     validateOnChange?: boolean;
     validateOnBlur?: boolean;
     initialValue?: any;
-    [index: string]: any;
 }
 
 export const RxText: React.FC<TextProps> = React.memo(props => {
@@ -35,5 +43,7 @@ export const RxText: React.FC<TextProps> = React.memo(props => {
         />
     );
 });
+
+export default RxText;
 
 export const Text = RxText;
