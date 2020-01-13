@@ -31,6 +31,7 @@ export const useFieldValueHook = () => {
                     <Text field="firstname" autoComplete={'off'} />
                 </label>
                 <FieldValue field="firstname" />
+                <button type="submit">Submit</button>
             </Demo>
         </Form>
     );
@@ -72,6 +73,7 @@ export const useFormValuesHook = () => {
                     <Text field="lastname" autoComplete={'off'} />
                 </label>
                 <FormValues />
+                <button type="submit">Submit</button>
             </Demo>
         </Form>
     );
@@ -105,6 +107,7 @@ export const useFormErrorsHook = () => {
                         autoComplete={'off'}
                     />
                 </label>
+                <button type="submit">Submit</button>
                 <br />
                 <FormErrors />
             </Demo>
