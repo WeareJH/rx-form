@@ -9,8 +9,8 @@
         "lint:check": "npm run lint -- --check",
         "test": "tsc",
         "build": "rm -rf dist/** && npm run lint:check && tsc",
-        "storybook": "start-storybook -p 6006",
-        "build-storybook": "build-storybook",
+        "storybook": "start-storybook -p 6006 --docs",
+        "build-storybook": "build-storybook --docs",
         "prepublishOnly": "npm run build"
     },
     "keywords": [

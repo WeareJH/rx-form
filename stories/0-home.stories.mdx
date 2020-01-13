@@ -1,0 +1,45 @@
+import { Meta, Story, Props, Preview } from '@storybook/addon-docs/blocks';
+import { Text, Form } from "../src";
+import { ValueFor } from "../src/helpers/ValueFor";
+
+<Meta title="RxForm" />
+
+# rx-form ![](https://github.com/WeareJH/rx-form/workflows/Node%20CI/badge.svg)
+
+A new form library for Preact + React. 
+
+```ts
+import { Form, Text } from '@wearejh/rx-form';
+
+const SignIn = () => {
+    return (
+        <Form onSubmit={(values) => console.log(values)}>
+            <label>
+                Username:
+                <Text field="username" />
+            </label>
+            <label>
+                Password:
+                <Text field="password" />
+            </label>
+            <button type="submit">Submit</button>
+        </Form>
+    )
+}
+```
+
+<Preview >
+    <Story name="positive">
+       <Form onSubmit={(values) => alert(JSON.stringify(values, null, 2))}>
+          <label>
+              Username:
+              <Text field="username" autoComplete="off" />
+          </label>
+          <label>
+              Password:
+              <Text field="password" type="password" autoComplete="off" />
+          </label>
+          <button type="submit">Submit</button>
+      </Form>
+    </Story>
+</Preview>
